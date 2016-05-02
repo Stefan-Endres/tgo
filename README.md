@@ -1,6 +1,5 @@
 # Topograhphical Global Optimisation
-Python implementation of the topograhphical global optimisation algorithm. Finds the global minima of a function using topograhphical global
-  optimisation.
+Python implementation of the topograhphical global optimisation algorithm. Finds the global minima of a function using topograhphical global optimisation.
 
   Parameters
   ----------
@@ -19,6 +18,7 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
       ``len(bounds)`` is used to determine the number of parameters in ``x``.
       Use ``None`` for one of min or max when there is no bound in that
       direction. By default bounds are ``(None, None)``.
+  ```
   ```
   args : tuple, optional
       Any additional fixed parameters needed to completely specify the
