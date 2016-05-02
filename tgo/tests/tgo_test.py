@@ -1,4 +1,4 @@
-cd"""
+"""
 Unit tests for topographical global optimization algorithm.
 
 NOTE: For TestTgoFuncs test_f1 and test_f2 adequately test the
