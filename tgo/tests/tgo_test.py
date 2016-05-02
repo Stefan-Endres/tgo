@@ -7,7 +7,8 @@ NOTE: For TestTgoFuncs test_f1 and test_f2 adequately test the
 """
 import unittest
 import numpy
-from _tgo import *
+from tgo import *
+from tgo._tgo import *
 # from scipy.optimize import _tgo
 # from scipy.optimize._tgo import tgo
 

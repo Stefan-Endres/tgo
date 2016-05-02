@@ -3,6 +3,10 @@
 #
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
+## Packaging
+/dist/
+/*.egg-info
+
 ## Build generated
 build/
 DerivedData
