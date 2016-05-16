@@ -474,8 +474,9 @@ class TGO(object):
         # Subspace of feasible points.
         for g in self.g_func:
             self.C = self.C[g(self.C.T, *self.g_args) >= 0.0]
-
-        # TODO: Check if container is empty fail test or increase n
+            if self.C.size == 0:
+                 self.res.message = 'No sampling point found within the ' \
+                                    'feasible set.'
 
     def topograph(self):
         """
@@ -501,8 +502,7 @@ class TGO(object):
 
     def k_t_matrix(self, T, k):
         """Returns the k-t topograph matrix"""
-        # TODO: Replace delete with simpler array access
-        return numpy.delete(T, numpy.s_[k:numpy.shape(T)[1]], axis=-1)
+        return T[:, 0:k]
 
     def minimizers(self, K):
         """Returns the minimizer indexes of a k-t matrix"""
