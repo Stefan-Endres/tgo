@@ -336,9 +336,7 @@ class TGO(object):
             bnderr = numpy.where(abound[0] > abound[1])[0]
             # Set none finite values to large floats
             infind = ~numpy.isfinite(abound)
-            print(infind)
-            print(abound)
-            print(abound[infind[0]])
+            infind = numpy.asarray(infind, dtype=int)
             abound[infind[0]] = -1e50  # e308
             abound[infind[1]] = 1e50  # e308
 
