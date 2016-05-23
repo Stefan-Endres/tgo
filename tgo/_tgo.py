@@ -14,7 +14,8 @@ except ImportError:
     from multiprocessing import Pool
 
 def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
-        k_t=None, callback=None, minimizer_kwargs=None, disp=False):
+        k_t=None, callback=None, minimizer_kwargs=None, options=None,
+        multiproc=False):
     """
     Finds the global minima of a function using topograhphical global
     optimisation.
@@ -84,16 +85,30 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
 
             options : {ftol: 1e-12}
 
-    disp : bool, optional # (TODO)
-        Display status messages
+    callback : callable, optional
+        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
+        current parameter vector.
 
-    callback : callable, `callback(xk, convergence=val)`, optional: # (TODO)
-        A function to follow the progress of the minimization. ``xk`` is
-        the current value of ``x0``. ``val`` represents the fractional
-        value of the population convergence.  When ``val`` is greater than one
-        the function halts. If callback returns `True`, then the minimization
-        is halted (any polishing is still carried out).
+    options : dict, optional
+        A dictionary of solver options. All methods in scipy.optimize.minimize
+        accept the following generic options:
 
+            maxiter : int
+                Maximum number of iterations to perform.
+            disp : bool
+                Set to True to print convergence messages.
+
+        The following options are also used in the global routine:
+
+            maxfev : int
+                Maximum number of iterations to perform in local solvers.
+                (Note only methods that support this option will terminate
+                tgo at the exact specified value)
+
+    multiproc : boolean, optional
+        If True the local minimizations of the minimizer points will be pooled
+        and processed in parallel using the multiprocessing module. This could
+        significantly speed up slow optimizations.
 
     Returns
     -------
@@ -115,7 +130,7 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     Notes
     -----
     Global optimization using the Topographical Global Optimization (TGO)
-    method first proposed by Törn (1990) [1] with the the semi-empirical
+    method first proposed by T��rn (1990) [1] with the the semi-empirical
     correlation by Hendorson et. al. (2015) [2] for k integer defining the
     k-t matrix.
 
@@ -225,7 +240,7 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
 
     Approx. Answer:
         f([(250)**0.5 , (2.5)**0.5]) = 5.0
-        
+
     >>> from scipy.optimize import tgo
     >>> def f(x):
     ...     return 0.01 * (x[0])**2 + (x[1])**2
@@ -245,10 +260,10 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
 
     References
     ----------
-    .. [1] Törn, A (1990) "Topographical global optimization", Reports on
+    .. [1] T��rn, A (1990) "Topographical global optimization", Reports on
            Computer Science and Mathematics Ser. A, No 199, 8p. Abo Akademi
            University, Sweden
-    .. [2] Henderson, N, de Sá Rêgo, M, Sacco, WF, Rodrigues, RA Jr. (2015) "A
+    .. [2] Henderson, N, de S�� R��go, M, Sacco, WF, Rodrigues, RA Jr. (2015) "A
            new look at the topographical global optimization method and its
            application to the phase stability analysis of mixtures",
            Chemical Engineering Science, 127, 151-174
@@ -266,7 +281,7 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     # Initiate TGO class
     TGOc = TGO(func, bounds, args=args, g_cons=g_cons, g_args=g_args, n=n,
                k_t=k_t, callback=callback, minimizer_kwargs=minimizer_kwargs,
-               disp=disp)
+               options=options, multiproc=multiproc)
 
     # Generate sampling points
     TGOc.sampling()
@@ -277,6 +292,9 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
 
     # Find topograph
     TGOc.topograph()
+    if TGOc.disp:
+        print("Succesfully completed construction of topograph, starting local"
+              "minizations.")
 
     # Find the optimal k+ topograph
     # Find epsilon_i parameter for current system
@@ -289,8 +307,9 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     TGOc.l_minima()
 
     # Confirm the routine ran succesfully
-    TGOc.res.message = 'Optimization terminated successfully.'
-    TGOc.res.succes = True
+    if not TGOc.break_routine:
+        TGOc.res.message = 'Optimization terminated successfully.'
+        TGOc.res.success = True
 
     # Add local func evals to sampling func evals
     TGOc.res.nfev += TGOc.res.nlfev
@@ -306,7 +325,7 @@ class TGO(object):
 
     def __init__(self, func, bounds, args=(), g_cons=None, g_args=(), n=100,
                  k_t=None, callback=None, minimizer_kwargs=None,
-                 disp=False):
+                 options=None, multiproc=False):
 
         self.func = func
         self.bounds = bounds
@@ -321,7 +340,13 @@ class TGO(object):
         self.k_t = k_t
 
         self.callback = callback
-        self.disp = disp
+        self.maxfev = None
+        self.disp = False
+        if options is not None:
+            if 'maxfev' in options:
+                self.maxfev = options['maxfev']
+            if 'disp' in options:
+                self.disp = options['disp']
 
         # set bounds
         abound = numpy.array(bounds, float)
@@ -337,6 +362,7 @@ class TGO(object):
             # Set none finite values to large floats
             infind = ~numpy.isfinite(abound)
             infind = numpy.asarray(infind, dtype=int)
+
             abound[infind[0]] = -1e50  # e308
             abound[infind[1]] = 1e50  # e308
 
@@ -348,10 +374,10 @@ class TGO(object):
 
         # Define constraint function used in local minimisation
         if g_cons is not None:
-             self.min_cons = []
-             for g in self.g_func:
-                 self.min_cons.append({'type': 'ineq',
-                                       'fun' : g})
+            self.min_cons = []
+            for g in self.g_func:
+                self.min_cons.append({'type': 'ineq',
+                                      'fun': g})
 
         # Define local minimization keyword arguments
         if minimizer_kwargs is not None:
@@ -368,18 +394,49 @@ class TGO(object):
             if 'options' not in minimizer_kwargs:
                 minimizer_kwargs['options'] = {'ftol': 1e-12}
 
+                if options is not None:
+                    if 'ftol' in options:
+                        self.minimizer_kwargs['options']['ftol'] = \
+                            options['ftol']
+                    if 'maxfev' in options:
+                        self.minimizer_kwargs['options']['maxfev'] = \
+                            options['maxfev']
+                    if 'disp' in options:
+                        self.minimizer_kwargs['options']['disp'] = \
+                            options['disp']
+
+            if 'callback' not in minimizer_kwargs:
+                minimizer_kwargs['callback'] = self.callback
+
             if self.minimizer_kwargs['method'] == 'SLSQP' or \
-               self.minimizer_kwargs['method'] == 'COBYLA':
+                            self.minimizer_kwargs['method'] == 'COBYLA':
                 if 'constraints' not in minimizer_kwargs:
                     minimizer_kwargs['constraints'] = self.min_cons
         else:
             self.minimizer_kwargs = {'args': self.args,
                                      'method': 'SLSQP',
                                      'bounds': self.bounds,
-                                     'options': {'ftol': 1e-12}
+                                     'options': {'ftol': 1e-12},
+                                     'callback': self.callback
                                      }
+
             if g_cons is not None:
                 self.minimizer_kwargs['constraints'] = self.min_cons
+
+            if options is not None:
+                if 'ftol' in options:
+                    self.minimizer_kwargs['options']['ftol'] = \
+                        options['ftol']
+                if 'maxfev' in options:
+                    self.minimizer_kwargs['options']['maxfev'] = \
+                        options['maxfev']
+                if 'disp' in options:
+                    self.minimizer_kwargs['options']['disp'] = options['disp']
+
+
+        self.break_routine = False
+
+        self.multiproc = multiproc
 
         # Initialize return object
         self.res = scipy.optimize.OptimizeResult()
@@ -537,22 +594,33 @@ class TGO(object):
         self.K_opt = self.k_t_matrix(self.T, k_opt)
         return self.K_opt
 
-    def minimizer_return(self):
-        """
+    # def minimizer_return(self):
+    #     """
+    #
+    #     """
+    #     lres = scipy.optimize.minimize(self.func, self.C[ind, :],
+    #                                    **self.minimizer_kwargs)
+    #
+    #     self.x_vals.append(lres.x)
+    #     self.Func_min[i] = lres.fun
+    #
+    #     # Local function evals for all minimisers
+    #     self.res.nlfev += lres.nfev
 
-        """
+    def process_pool(self, ind):
+        if self.callback is not None:
+            print('Callback for multiprocess '
+                  'minimizer starting at {}:'.format(self.C[ind, :], ))
+
+        if self.disp:
+            print('Starting multiprocess local '
+                  'minimization at {}...'.format(self.C[ind, :]))
+
         lres = scipy.optimize.minimize(self.func, self.C[ind, :],
                                        **self.minimizer_kwargs)
-
-        self.x_vals.append(lres.x)
-        self.Func_min[i] = lres.fun
 
         # Local function evals for all minimisers
         self.res.nlfev += lres.nfev
-
-    def process_pool(self, ind):
-        lres = scipy.optimize.minimize(self.func, self.C[ind, :],
-                                       **self.minimizer_kwargs)
         return lres
 
     def l_minima(self):
@@ -560,23 +628,69 @@ class TGO(object):
         Find the local minima using the chosen local minimisation method with
         the minimisers as starting points.
         """
-
+        # Sort to start with lowest minimizer
         Min_ind = self.minimizers(self.K_opt)
+        Min_fun = self.F[Min_ind]
+        fun_min_ind = numpy.argsort(Min_fun)
+        Min_ind = Min_ind[fun_min_ind]
+        Min_fun = Min_fun[fun_min_ind]
+
+        # Init storages
         self.x_vals = []
         self.Func_min = numpy.zeros_like(Min_ind, dtype=float)
-        p = Pool()
-        lres_list = p.map(self.process_pool, Min_ind)
+
+        if self.maxfev is not None:  # Update number of sampling points
+            self.maxfev -= self.n
+
+        # Pool processes if multiprocessing
+        if self.multiproc:
+            p = Pool()
+            lres_list = p.map(self.process_pool, Min_ind)
+
 
         for i, ind in zip(range(len(Min_ind)), Min_ind):
-            # Find minimum x vals
-            # lres = scipy.optimize.minimize(self.func, self.C[ind, :],
-            #                                 **self.minimizer_kwargs)
-            lres = lres_list[i]
+            if not self.multiproc:
+                if self.callback is not None:
+                    print('Callback for '
+                          'minimizer starting at {}:'.format(self.C[ind, :], ))
+
+                if self.disp:
+                    print('Starting local '
+                          'minimization at {}...'.format(self.C[ind, :]))
+
+                # Find minimum x vals
+                lres = scipy.optimize.minimize(self.func, self.C[ind, :],
+                                               **self.minimizer_kwargs)
+
+            elif self.multiproc:
+                lres = lres_list[i]
+
             self.x_vals.append(lres.x)
             self.Func_min[i] = lres.fun
 
             # Local function evals for all minimisers
             self.res.nlfev += lres.nfev
+
+            if self.maxfev is not None:
+                self.maxfev -= lres.nfev
+                self.minimizer_kwargs['options']['maxfev'] = self.maxfev
+                if self.maxfev <= 0:
+                    self.res.message = 'Maximum number of function' \
+                                       ' evaluations exceeded'
+                    self.res.success = False
+                    self.break_routine = True
+
+                    if self.disp:
+                        print('Maximum number of function evaluations exceeded'
+                              'breaking'
+                              'minimizations at {}...'.format(self.C[ind, :]))
+
+                        if not self.multiproc:
+                            for j in range(i + 1, len(Min_ind)):
+                                self.x_vals.append(self.C[Min_ind[j], :])
+                                self.Func_min[j] = self.F[Min_ind[j]]
+
+                    break
 
         self.x_vals = numpy.array(self.x_vals)
         # Sort and save
