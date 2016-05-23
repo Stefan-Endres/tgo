@@ -677,7 +677,8 @@ class TGO(object):
                                 self.x_vals.append(self.C[Min_ind[j], :])
                                 self.Func_min[j] = self.F[Min_ind[j]]
 
-                    break
+                    if not self.multiproc:
+                        break
 
         self.x_vals = numpy.array(self.x_vals)
         # Sort and save
