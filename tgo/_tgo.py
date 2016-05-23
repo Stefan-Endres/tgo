@@ -595,6 +595,21 @@ class TGO(object):
         return self.K_opt
 
     def process_pool(self, ind):
+        """
+        This function is used to calculate the mimima of each starting point
+        in the multiprocessing pool.
+
+        Parameters
+        ----------
+        ind : int
+            Index of current sampling point to access.
+
+        Returns
+        -------
+        lres : OptimizeResult
+            The local optimization result represented as a `OptimizeResult`
+            object.
+        """
         if self.callback is not None:
             print('Callback for multiprocess '
                   'minimizer starting at {}:'.format(self.C[ind, :], ))
