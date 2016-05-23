@@ -594,19 +594,6 @@ class TGO(object):
         self.K_opt = self.k_t_matrix(self.T, k_opt)
         return self.K_opt
 
-    # def minimizer_return(self):
-    #     """
-    #
-    #     """
-    #     lres = scipy.optimize.minimize(self.func, self.C[ind, :],
-    #                                    **self.minimizer_kwargs)
-    #
-    #     self.x_vals.append(lres.x)
-    #     self.Func_min[i] = lres.fun
-    #
-    #     # Local function evals for all minimisers
-    #     self.res.nlfev += lres.nfev
-
     def process_pool(self, ind):
         if self.callback is not None:
             print('Callback for multiprocess '
