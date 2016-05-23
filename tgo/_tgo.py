@@ -6,7 +6,7 @@ from __future__ import division, print_function, absolute_import
 import numpy
 import scipy.spatial
 import scipy.optimize
-from . import __file__
+#from . import __file__
 
 try:
     from multiprocessing_on_dill import Pool
@@ -595,6 +595,21 @@ class TGO(object):
         return self.K_opt
 
     def process_pool(self, ind):
+        """
+        This function is used to calculate the mimima of each starting point
+        in the multiprocessing pool.
+
+        Parameters
+        ----------
+        ind : int
+            Index of current sampling point to access.
+
+        Returns
+        -------
+        lres : OptimizeResult
+            The local optimization result represented as a `OptimizeResult`
+            object.
+        """
         if self.callback is not None:
             print('Callback for multiprocess '
                   'minimizer starting at {}:'.format(self.C[ind, :], ))
@@ -677,7 +692,8 @@ class TGO(object):
                                 self.x_vals.append(self.C[Min_ind[j], :])
                                 self.Func_min[j] = self.F[Min_ind[j]]
 
-                    break
+                    if not self.multiproc:
+                        break
 
         self.x_vals = numpy.array(self.x_vals)
         # Sort and save
@@ -696,8 +712,5 @@ class TGO(object):
 
     
 if __name__ == '__main__':
-    pass
-    
-    
-    
- 
+    import doctest
+    doctest.testmod()
