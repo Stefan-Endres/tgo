@@ -130,7 +130,7 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     Notes
     -----
     Global optimization using the Topographical Global Optimization (TGO)
-    method first proposed by T��rn (1990) [1] with the the semi-empirical
+    method first proposed by Törn (1990) [1] with the the semi-empirical
     correlation by Hendorson et. al. (2015) [2] for k integer defining the
     k-t matrix.
 
@@ -260,10 +260,10 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
 
     References
     ----------
-    .. [1] T��rn, A (1990) "Topographical global optimization", Reports on
+    .. [1] Törn, A (1990) "Topographical global optimization", Reports on
            Computer Science and Mathematics Ser. A, No 199, 8p. Abo Akademi
            University, Sweden
-    .. [2] Henderson, N, de S�� R��go, M, Sacco, WF, Rodrigues, RA Jr. (2015) "A
+    .. [2] Henderson, N, de Sá Rêgo, M, Sacco, WF, Rodrigues, RA Jr. (2015) "A
            new look at the topographical global optimization method and its
            application to the phase stability analysis of mixtures",
            Chemical Engineering Science, 127, 151-174
