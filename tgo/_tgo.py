@@ -294,7 +294,7 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     TGOc.topograph()
     if TGOc.disp:
         print("Succesfully completed construction of topograph, starting local"
-              "minizations.")
+              "minimizations.")
 
     # Find the optimal k+ topograph
     # Find epsilon_i parameter for current system
