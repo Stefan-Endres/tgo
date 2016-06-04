@@ -485,6 +485,11 @@ class TestTgoSubFuncs(unittest.TestCase):
         """K_optimal"""
         numpy.testing.assert_array_equal(self.TGOc.K_optimal(), self.T_Ans)
 
+
+from numpy.testing import (assert_equal, TestCase, assert_allclose,
+                           run_module_suite, assert_almost_equal,
+                           assert_string_equal)
+
 def tgo_suite():
     """
     Gather all the TGO tests from this module in a test suite.
@@ -497,6 +502,10 @@ def tgo_suite():
     return TestTgo
 
 
+class TestTGO(TestCase):
+    pass
+
 if __name__ == '__main__':
-    TestTgo=tgo_suite()
+    #run_module_suite()
+    TestTgo = tgo_suite()
     unittest.TextTestRunner(verbosity=2).run(TestTgo)

@@ -433,7 +433,14 @@ class TGO(object):
                 if 'disp' in options:
                     self.minimizer_kwargs['options']['disp'] = options['disp']
 
-
+        # Remove unknown solver options to avoid OptimizeWarning:
+        if self.minimizer_kwargs['method'] == 'SLSQP' or \
+                        self.minimizer_kwargs['method'] == 'COBYLA':
+            try:
+                del self.minimizer_kwargs['options']['maxfev']
+            except KeyError:
+                pass
+            
         self.break_routine = False
 
         self.multiproc = multiproc
