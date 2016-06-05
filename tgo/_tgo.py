@@ -289,6 +289,8 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     # Find subspace of feasible points
     if g_cons is not None:
         TGOc.subspace()
+        TGOc.res.nfev = TGOc.fn  # Include each sampling point as func
+        # evaluation
 
     # Find topograph
     TGOc.topograph()
@@ -440,14 +442,14 @@ class TGO(object):
                 del self.minimizer_kwargs['options']['maxfev']
             except KeyError:
                 pass
-            
+
         self.break_routine = False
 
         self.multiproc = multiproc
 
         # Initialize return object
         self.res = scipy.optimize.OptimizeResult()
-        self.res.nfev = n  # Include each sampling point as func evaluation
+        self.res.nfev = 0
         self.res.nlfev = 0  # Local function evals for all minimisers
         self.res.nljev = 0  # Local jacobian evals for all minimisers
 
@@ -541,6 +543,9 @@ class TGO(object):
             if self.C.size == 0:
                  self.res.message = 'No sampling point found within the ' \
                                     'feasible set.'
+
+        self.fn = numpy.shape(self.C)[0]
+        return
 
     def topograph(self):
         """
