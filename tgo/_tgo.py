@@ -296,7 +296,6 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
         else:
             TGOc.fn = TGOc.n
 
-        print(TGOc.fn)
         # Find topograph
         if TGOc.disp:
             print('Constructing topograph')
@@ -326,7 +325,6 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
 
             # Include each sampling point as func evaluation:
             TGOc.res.nfev = TGOc.fn
-            print(TGOc.res.nfev)
         else:  # If good values are found stop while loop
             # Include each sampling point as func evaluation:
             TGOc.res.nfev = TGOc.fn
@@ -615,7 +613,6 @@ class TGO(object):
         # Create float value and bool topograph:
         # This replaces all index values in A with the function result:
         self.H = self.F[self.A]
-        print(numpy.isnan(self.H))
 
         # Replace numpy inf, -inf and nan objects with floating point numbers
         # fixme: Find a better way to deal with numpy.nan values.
