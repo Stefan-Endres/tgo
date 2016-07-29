@@ -615,6 +615,17 @@ class TGO(object):
         # Create float value and bool topograph:
         # This replaces all index values in A with the function result:
         self.H = self.F[self.A]
+        print(numpy.isnan(self.H))
+
+        # Replace numpy inf, -inf and nan objects with floating point numbers
+        # fixme: Find a better way to deal with numpy.nan values.
+        # nan --> float
+        self.H[numpy.isnan(self.H)] = numpy.inf
+        self.F[numpy.isnan(self.F)] = numpy.inf
+        # inf, -inf  --> floats
+        self.H = numpy.nan_to_num(self.H)
+        self.F = numpy.nan_to_num(self.F)
+
         # Topograph with Boolean entries:
         self.T = (self.H.T > self.F.T).T
         return self.T, self.H, self.F
