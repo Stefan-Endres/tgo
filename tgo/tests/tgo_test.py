@@ -290,15 +290,30 @@ class Test10(TestFunction):
 test10_1 = Test10(bounds=[(-10, 10),]*7,
                   expected_x=[2.330499, 1.951372, -0.4775414,
                               4.365726, -0.6244870, 1.038131, 1.594227],
-                   expected_fun=[680.6300573]
+                  expected_fun=[680.6300573]
                   )
+
+
+class Test11(TestFunction):
+    def f(self, x):
+        if (x > 5.01) and (x < 5.05):
+            return 100 * (x - 5.02) ** 2
+        return 100.0  # numpy.nan
+
+    def g(self, x):
+       return -(numpy.sum(x, axis=0) - 9.0)
+
+test11_1 = Test11(bounds=[(0, 10)],
+                  expected_x=[5.02])
+
+
 
 def run_test(test, args=(), g_args=()):
     def callfun(x):
         print('callfun = {}'.format(x))
         return
 
-    if test is not test10_1:
+    if test is not test10_1 or test11_1:
         res = tgo(test.f, test.bounds, args=args, g_cons=test.g,
                   g_args=g_args, multiproc=True,
                   callback=callfun,
@@ -318,6 +333,9 @@ def run_test(test, args=(), g_args=()):
     if test == test10_1:
         res = tgo(test.f, test.bounds, args=args, g_cons=test.g,
                   g_args=g_args, n=1000)
+
+    if test == test11_1:
+        res = tgo(test.f, test.bounds, g_cons=test.g, n=10)
 
     if False:
         print("=" * 100)
@@ -415,6 +433,10 @@ class TestTgoFuncs(unittest.TestCase):
     def test_t910(self):
         """ Hock and Schittkowski 11 problem (HS11)"""
         run_test(test10_1)
+
+    def test_t911(self):
+        """1D tabletop function"""
+        run_test(test11_1)
 
 # $ python2 -m unittest -v tgo_tests.TestTgoSubFuncs
 class TestTgoSubFuncs(unittest.TestCase):

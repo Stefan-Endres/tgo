@@ -283,30 +283,70 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
                k_t=k_t, callback=callback, minimizer_kwargs=minimizer_kwargs,
                options=options, multiproc=multiproc)
 
-    # Generate sampling points
-    TGOc.sampling()
+    sample = True
+    while sample:
+        # Generate sampling points
+        if TGOc.disp:
+            print('Generating sampling points')
 
-    # Find subspace of feasible points
-    if g_cons is not None:
-        TGOc.subspace()
-        TGOc.res.nfev = TGOc.fn  # Include each sampling point as func
-        # evaluation
+        TGOc.sampling()
+        # Find subspace of feasible points
+        if g_cons is not None:
+            TGOc.subspace()
+        else:
+            TGOc.fn = TGOc.n
 
-    # Find topograph
-    TGOc.topograph()
-    if TGOc.disp:
-        print("Succesfully completed construction of topograph, starting local"
-              "minimizations.")
+        print(TGOc.fn)
+        # Find topograph
+        if TGOc.disp:
+            print('Constructing topograph')
 
-    # Find the optimal k+ topograph
-    # Find epsilon_i parameter for current system
-    if k_t is None:
-        TGOc.K_opt = TGOc.K_optimal()
-    else:
-        TGOc.K_opt = TGOc.k_t_matrix(TGOc.T, k_t)
+        TGOc.topograph()
 
-    # %% Local Search: Find the minimiser float values and func vals.
-    TGOc.l_minima()
+        # Check for tabletop and nan values
+        if not TGOc.T.any() == True:
+            if TGOc.disp:
+                print('No minimizers found. Increasing sampling space.')
+
+            n_add = 100
+            if options is not None:
+                if 'maxiter' in options.keys():
+                    n_add = int((options['maxiter'] - TGOc.fn)/1.618)
+                    if n_add < 1:
+                        TGOc.res.message = ("Failed to find a minimizer "
+                                            "within the maximum allowed "
+                                            "function evaluations.")
+                        if TGOc.disp:
+                            print(TGOc.res.message + " Breaking routine...")
+                            TGOc.break_routine = True
+                            TGOc.res.success = False
+                            sample = False
+
+            TGOc.n += n_add
+
+            # Include each sampling point as func evaluation:
+            TGOc.res.nfev = TGOc.fn
+            print(TGOc.res.nfev)
+        else:  # If good values are found stop while loop
+            # Include each sampling point as func evaluation:
+            TGOc.res.nfev = TGOc.fn
+            sample = False
+
+    if not TGOc.break_routine:
+        if TGOc.disp:
+            print("Succesfully completed construction of topograph, "
+                  "starting local minimizations.")
+
+        # Find the optimal k+ topograph
+        # Find epsilon_i parameter for current system
+        if k_t is None:
+            TGOc.K_opt = TGOc.K_optimal()
+        else:
+            TGOc.K_opt = TGOc.k_t_matrix(TGOc.T, k_t)
+
+    if not TGOc.break_routine:
+        # Local Search: Find the minimiser float values and func vals.
+        TGOc.l_minima()
 
     # Confirm the routine ran succesfully
     if not TGOc.break_routine:
@@ -339,6 +379,7 @@ class TGO(object):
 
         self.g_args = g_args
         self.n = n
+        self.n_sampled = 0  # To track sampling points already evaluated
         self.k_t = k_t
 
         self.callback = callback
@@ -541,8 +582,10 @@ class TGO(object):
         for g in self.g_func:
             self.C = self.C[g(self.C.T, *self.g_args) >= 0.0]
             if self.C.size == 0:
-                 self.res.message = 'No sampling point found within the ' \
-                                    'feasible set.'
+                if self.disp:
+                    self.res.message = ('No sampling point found within the '
+                                        'feasible set. Increasing sampling '
+                                        'size.')
 
         self.fn = numpy.shape(self.C)[0]
         return
@@ -557,11 +600,18 @@ class TGO(object):
         # Topographical matrix without signs:
         self.A = numpy.delete(self.Z, 0, axis=-1)
         # Obj. function returns to be used as reference table.:
-        self.F = numpy.zeros(numpy.shape(self.C)[0])
-        for i in range(numpy.shape(self.C)[0]):
-            self.F[i] = self.func(self.C[i,:], *self.args)
-        # TODO: see scipy.spatial.KDTree for F lookup?
+        if self.n_sampled > 0:  # Store old function evaluations
+            Ftemp = self.F
 
+        self.F = numpy.zeros(numpy.shape(self.C)[0])
+        # New function evaluations
+        for i in range(self.n_sampled, numpy.shape(self.C)[0]):
+            self.F[i] = self.func(self.C[i,:], *self.args)
+
+        if self.n_sampled > 0:  # Restore saved function evaluations
+            self.F[0:self.n_sampled] = Ftemp
+
+        self.n_sampled = numpy.shape(self.C)[0]# self.n
         # Create float value and bool topograph:
         # This replaces all index values in A with the function result:
         self.H = self.F[self.A]
@@ -586,6 +636,12 @@ class TGO(object):
         """
         # TODO: Recheck correct implementation, compare with HS19
         K_1 = self.k_t_matrix(self.T, 1)  # 1-t topograph
+        if len(self.minimizers(K_1)) == 1:
+            if self.disp:
+                print("Found k_c = {}".format(1))
+            self.K_opt = K_1
+            return self.K_opt
+
         k_1 = len(self.minimizers(K_1))
         k_i = k_1
         i = 2
@@ -593,10 +649,14 @@ class TGO(object):
             K_i = self.k_t_matrix(self.T, i)
             k_i = len(self.minimizers(K_i))
             i += 1
+            print(i)
 
         ep = i * k_i / (k_1 - k_i)
         k_c = numpy.floor((-(ep - 1) + numpy.sqrt((ep - 1.0)**2 + 80.0 * ep))
                           / 2.0)
+
+        if self.disp:
+            print("Found k_c = {}".format(k_c))
 
         k_opt = int(k_c + 1)
         if k_opt > numpy.shape(self.T)[1]:
