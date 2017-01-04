@@ -249,4 +249,3 @@ References
 3. Sobol, IM (1967) "The distribution of points in a cube and the approximate evaluation of integrals. USSR Comput. Math. Math. Phys. 7, 86-112.
 4. Joe and F. Y. Kuo (2008) "Constructing Sobol sequences with better two-dimensional projections", SIAM J. Sci. Comput. 30, 2635-2654
 5. Hoch, W and Schittkowski, K (1981) "Test examples for nonlinear programming codes." Lecture Notes in Economics and mathematical Systems, 187. Springer-Verlag, New York. http://www.ai7.uni-bayreuth.de/test_problem_coll.pdf
-
