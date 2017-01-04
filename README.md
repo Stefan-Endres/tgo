@@ -133,6 +133,7 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
   --------
   First consider the problem of minimizing the Rosenbrock function. This
   function is implemented in `rosen` in `scipy.optimize`
+
   ```
   >>> from scipy.optimize import rosen, tgo
   >>> bounds = [(0,2), (0, 2), (0, 2), (0, 2), (0, 2)]
@@ -140,6 +141,7 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
   >>> result.x, result.fun
   (array([ 1.,  1.,  1.,  1.,  1.]), 2.9203923741900809e-18)
   ```
+
   Note that bounds determine the dimensionality of the objective
   function and is therefore a required input, however you can specify
   empty bounds using ``None`` or objects like numpy.inf which will be
