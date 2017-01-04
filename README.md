@@ -3,14 +3,14 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
 
   Parameters
   ----------
-  ```
+
   func : callable
       The objective function to be minimized.  Must be in the form
       ``f(x, *args)``, where ``x`` is the argument in the form of a 1-D array
       and ``args`` is a  tuple of any additional fixed parameters needed to
       completely specify the function.
-  ```
-  ```
+
+
   bounds : sequence
       Bounds for variables.  ``(min, max)`` pairs for each element in ``x``,
       defining the lower and upper bounds for the optimizing argument of
