@@ -807,7 +807,7 @@ class TGO(object):
         return x_global_min
 
 
-    
+
 if __name__ == '__main__':
     pass
     import doctest
