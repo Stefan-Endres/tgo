@@ -3,29 +3,27 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
 
   Parameters
   ----------
-  ```
-  func : callable
+
+  ``func`` : callable
       The objective function to be minimized.  Must be in the form
       ``f(x, *args)``, where ``x`` is the argument in the form of a 1-D array
       and ``args`` is a  tuple of any additional fixed parameters needed to
       completely specify the function.
-  ```
-  ```
-  bounds : sequence
+
+
+  ``bounds`` : sequence
       Bounds for variables.  ``(min, max)`` pairs for each element in ``x``,
       defining the lower and upper bounds for the optimizing argument of
       `func`. It is required to have ``len(bounds) == len(x)``.
       ``len(bounds)`` is used to determine the number of parameters in ``x``.
       Use ``None`` for one of min or max when there is no bound in that
       direction. By default bounds are ``(None, None)``.
-  ```
-  ```
-  args : tuple, optional
+
+  ``args`` : tuple, optional
       Any additional fixed parameters needed to completely specify the
       objective function.
-  ```
-  ```
-  g_cons : sequence of callable functions, optional
+
+  ``g_cons`` : sequence of callable functions, optional
       Function(s) used to define a limited subset to defining the feasible
       set of solutions in R^n in the form g(x) <= 0 applied as g : R^n -> R^m
 
@@ -37,22 +35,20 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
              constraints and so forth need to be added then the inequality
              functions in ``g_cons`` need to be added to ``minimizer_kwargs``
              too).
-  ```
-  ```
-  g_args : sequence of tuples, optional
+
+
+  ``g_args`` : sequence of tuples, optional
       Any additional fixed parameters needed to completely specify the
       feasible set functions ``g_cons``.
       ex. g_cons = (f1(x, *args1), f2(x, *args2))
       then
           g_args = (args1, args2)
-  ```
-  ```
-  n : int, optional
+
+  ``n`` : int, optional
       Number of sampling points used in the construction of the topography
       matrix.
-  ```
-  ```
-  k_t : int, optional
+
+  ``k_t`` : int, optional
       Defines the number of columns constructed in the k-t matrix. The higher
       k is the lower the amount of minimisers will be used for local search
       routines. If None the empirical model of Henderson et. al. (2015) will
@@ -60,9 +56,8 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
       minimisations that need need to be performed, but could potentially be
       more robust depending on the local solver used due to testing more
       local minimisers on the function hypersuface)
-  ```
-  ```
-  minimizer_kwargs : dict, optional
+
+  ``minimizer_kwargs`` : dict, optional
       Extra keyword arguments to be passed to the minimizer
       ``scipy.optimize.minimize`` Some important options could be:
 
@@ -73,19 +68,16 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
               its derivatives (Jacobian, Hessian).
 
           options : {ftol: 1e-12}
-  ```
-  ```
-  disp : bool, optional # (TODO)
+
+  ``disp`` : bool, optional # (TODO)
       Display status messages
-  ```
-  ```
-  callback : callable, `callback(xk, convergence=val)`, optional: # (TODO)
+
+  ``callback`` : callable, `callback(xk, convergence=val)`, optional: # (TODO)
       A function to follow the progress of the minimization. ``xk`` is
       the current value of ``x0``. ``val`` represents the fractional
       value of the population convergence.  When ``val`` is greater than one
       the function halts. If callback returns `True`, then the minimization
       is halted (any polishing is still carried out).
-  ```
 
   Returns
   -------
@@ -141,13 +133,15 @@ Python implementation of the topograhphical global optimisation algorithm. Finds
   --------
   First consider the problem of minimizing the Rosenbrock function. This
   function is implemented in `rosen` in `scipy.optimize`
-  ```
+
+
   >>> from scipy.optimize import rosen, tgo
   >>> bounds = [(0,2), (0, 2), (0, 2), (0, 2), (0, 2)]
   >>> result = tgo(rosen, bounds)
   >>> result.x, result.fun
   (array([ 1.,  1.,  1.,  1.,  1.]), 2.9203923741900809e-18)
-  ```
+
+
   Note that bounds determine the dimensionality of the objective
   function and is therefore a required input, however you can specify
   empty bounds using ``None`` or objects like numpy.inf which will be
@@ -249,4 +243,3 @@ References
 3. Sobol, IM (1967) "The distribution of points in a cube and the approximate evaluation of integrals. USSR Comput. Math. Math. Phys. 7, 86-112.
 4. Joe and F. Y. Kuo (2008) "Constructing Sobol sequences with better two-dimensional projections", SIAM J. Sci. Comput. 30, 2635-2654
 5. Hoch, W and Schittkowski, K (1981) "Test examples for nonlinear programming codes." Lecture Notes in Economics and mathematical Systems, 187. Springer-Verlag, New York. http://www.ai7.uni-bayreuth.de/test_problem_coll.pdf
-
