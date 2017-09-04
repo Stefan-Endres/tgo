@@ -583,11 +583,10 @@ class TGO(object):
         for g in self.g_func:
             self.C = self.C[g(self.C.T, *self.g_args) >= 0.0]
             if self.C.size == 0:
-                self.res.message = ('No sampling point found within the '
+                if self.disp:
+                    self.res.message = ('No sampling point found within the '
                                         'feasible set. Increasing sampling '
                                         'size.')
-                if self.disp:
-                    print(self.res.message)
 
         self.fn = numpy.shape(self.C)[0]
         return
@@ -661,6 +660,7 @@ class TGO(object):
             K_i = self.k_t_matrix(self.T, i)
             k_i = len(self.minimizers(K_i))
             i += 1
+            print(i)
 
         ep = i * k_i / (k_1 - k_i)
         k_c = numpy.floor((-(ep - 1) + numpy.sqrt((ep - 1.0)**2 + 80.0 * ep))
