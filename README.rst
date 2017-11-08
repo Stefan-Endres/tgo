@@ -1,7 +1,7 @@
-.. image:: https://travis-ci.org/Stefan-Endres/shgo.svg?branch=master
-    :target: https://travis-ci.org/Stefan-Endres/shgo
-.. image:: https://coveralls.io/repos/github/Stefan-Endres/shgo/badge.png?branch=master
-    :target: https://coveralls.io/github/Stefan-Endres/shgo?branch=master
+.. image:: https://travis-ci.org/Stefan-Endres/tgo.svg?branch=master
+    :target: https://travis-ci.org/Stefan-Endres/tgo
+.. image:: https://coveralls.io/repos/github/Stefan-Endres/tgo/badge.png?branch=master
+    :target: https://coveralls.io/github/Stefan-Endres/tgo?branch=master
 
 
 Description
@@ -12,7 +12,7 @@ optimisation (tgo_). Appropriate for solving general purpose NLP and blackbox
 optimisation problems to global optimality (low dimensional problems).
 The general form of an optimisation problem is given by:
 
-.. _shgo: https://stefan-endres.github.io/tgo/
+.. _tgo: https://stefan-endres.github.io/tgo/
 
 ::
 
