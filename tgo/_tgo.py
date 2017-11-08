@@ -163,7 +163,8 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     First consider the problem of minimizing the Rosenbrock function. This
     function is implemented in `rosen` in `scipy.optimize`
 
-    >>> from scipy.optimize import rosen, tgo
+    >>> from scipy.optimize import rosen
+    >>> from tgo import tgo
     >>> bounds = [(0,2), (0, 2), (0, 2), (0, 2), (0, 2)]
     >>> result = tgo(rosen, bounds)
     >>> result.x, result.fun
@@ -183,8 +184,7 @@ def tgo(func, bounds, args=(), g_cons=None, g_args=(), n=100,
     minima and one global minimum.
     (https://en.wikipedia.org/wiki/Test_functions_for_optimization)
 
-    >>> from scipy.optimize import tgo
-    >>> from _tgo import tgo
+    >>> from tgo import tgo
     >>> import numpy as np
     >>> def eggholder(x):
     ...     return (-(x[1] + 47.0)
