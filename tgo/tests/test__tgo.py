@@ -331,7 +331,7 @@ def run_test(test, args=(), g_args=(), minimizer_kwargs=None):
         #options = {'maxiter': 900}
         res = tgo(test.f, test.bounds, args=args, g_cons=test.g,
                   g_args=g_args, n=1000, minimizer_kwargs=minimizer_kwargs,
-                  multiproc=True)
+                  multiproc=False)
 
     if test == test11_1:
         res = tgo(test.f, test.bounds, minimizer_kwargs=minimizer_kwargs,

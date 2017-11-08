@@ -49,5 +49,5 @@ setup(name='tgo',
       extras_require = {
           'dill support': ['multiprocessing_on_dill']
       },
-      test_suite='tgo.tests.tgo_test.tgo_suite',
+      test_suite='tgo.tests.tgo__test',
       zip_safe=False)
