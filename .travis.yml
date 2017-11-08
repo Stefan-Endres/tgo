@@ -41,7 +41,6 @@ install:
       conda install functools32;
     fi
   - pip install coveralls
-  - pip install multiprocessing_on_dill
   - python setup.py install
 
 # Run test
