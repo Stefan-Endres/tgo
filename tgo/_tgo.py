@@ -455,7 +455,8 @@ class TGO(object):
             if self.minimizer_kwargs['method'] == 'SLSQP' or \
                             self.minimizer_kwargs['method'] == 'COBYLA':
                 if 'constraints' not in minimizer_kwargs:
-                    minimizer_kwargs['constraints'] = self.min_cons
+                    if g_cons is not None:
+                        minimizer_kwargs['constraints'] = self.min_cons
         else:
             self.minimizer_kwargs = {'args': self.args,
                                      'method': 'SLSQP',
@@ -488,6 +489,82 @@ class TGO(object):
         self.break_routine = False
 
         self.multiproc = multiproc
+
+        # Pop unknown arguments in self.minimizer_kwargs
+        method = self.minimizer_kwargs['method']
+        meth = method.lower()
+        print('='*100)
+        print('meth = {}'.format(meth))
+        if meth == '_custom':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'hess',
+                                    'hessp', 'bounds',
+                                    'constraints', 'callback']
+        elif meth == 'nelder-mead':
+            self.min_solver_args = ['fun', 'x0', 'args', 'callback']
+        elif meth == 'powell':
+            self.min_solver_args = ['fun', 'x0', 'args', 'callback']
+        elif meth == 'cg':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'callback']
+        elif meth == 'bfgs':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'callback']
+        elif meth == 'newton-cg':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'hess',
+                                    'hessp', 'callback']
+        elif meth == 'l-bfgs-b':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'bounds',
+                                    'callback']
+        elif meth == 'tnc':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'bounds',
+                                    'callback']
+        elif meth == 'cobyla':
+            self.min_solver_args = ['fun', 'x0', 'args', 'constraints']
+        elif meth == 'slsqp':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'bounds',
+                                    'constraints', 'callback']
+        elif meth == 'dogleg':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'hess',
+                                    'callback']
+        elif meth == 'trust-ncg':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'hess',
+                                    'hessp', 'callback']
+        elif meth == 'trust-krylov':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'hess',
+                                    'hessp', 'callback']
+        elif meth == 'trust-exact':
+            self.min_solver_args = ['fun', 'x0', 'args', 'jac', 'hess',
+                                    'callback']
+
+        self.min_solver_args.append('options')
+        self.min_solver_args.append('method')
+        kwarg_dict = self.minimizer_kwargs.copy()
+        print(kwarg_dict)
+        kwarg_opt_dict = self.minimizer_kwargs['options'].copy()
+        f_tol_excluded_list = ['nelder-mead', 'cg', 'bfgs', 'newton-cg',
+                               'dogleg', 'trust-ncg', 'trust-exact',
+                               'trust-krylov', 'cobyla']
+        for key in kwarg_dict:
+            if key not in self.min_solver_args:
+                self.minimizer_kwargs.pop(key, None)
+                if key is 'ftol':
+                    if meth in f_tol_excluded_list:
+                        self.minimizer_kwargs['options']['fatol'] = \
+                            self.minimizer_kwargs['options']['ftol']
+                        self.minimizer_kwargs['options'].pop(key, None)
+                else:
+                    self.minimizer_kwargs['options'].pop(key, None)
+                    self.minimizer_kwargs['options'].pop(key, None)
+
+        for key in kwarg_opt_dict:
+            if key not in self.min_solver_args:
+                self.minimizer_kwargs.pop(key, None)
+                if key is 'ftol':
+                    if meth in f_tol_excluded_list:
+                        if meth in ['nelder-mead']:
+                            self.minimizer_kwargs['options']['fatol'] = \
+                                self.minimizer_kwargs['options']['ftol']
+                        self.minimizer_kwargs['options'].pop(key, None)
+                else:
+                    self.minimizer_kwargs['options'].pop(key, None)
 
         # Initialize return object
         self.res = scipy.optimize.OptimizeResult()
@@ -811,20 +888,3 @@ if __name__ == '__main__':
     pass
     import doctest
     doctest.testmod()
-
-    #tgo(func, bounds, options={'maxfev': 2000})
-
-    from numpy import prod
-    def fun( x):
-        f1 = sum(x)
-        f2 = prod(x)
-        f1 = f1 / 2
-        f2 = f2 ** (1.0 / 2)
-        f = (f1 - f2) ** 2
-
-        return f
-
-
-    bounds = list(zip([0.0] * 2, [10.0] * 2))
-
-    tgo(fun, bounds)

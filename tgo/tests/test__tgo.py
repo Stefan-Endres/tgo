@@ -9,10 +9,8 @@ import unittest
 import numpy
 from tgo import *
 from tgo._tgo import *
-# from scipy.optimize import _tgo
-# from scipy.optimize._tgo import tgo
 
-class TestFunction(object):
+class StuctureTestFunction(object):
     def __init__(self, bounds, expected_x, expected_fun=None,
                  expected_xl=None, expected_funl=None):
         self.bounds = bounds
@@ -21,21 +19,21 @@ class TestFunction(object):
         self.expected_xl = expected_xl
         self.expected_funl = expected_funl
 
-class Test1(TestFunction):
+class StuctureTest1(StuctureTestFunction):
     def f(self, x, r, s):
         return x[0]**2 + x[1]**2
 
     def g(self, x):
        return -(numpy.sum(x, axis=0) - 6.0)
 
-test1_1 = Test1(bounds=[(-1, 6), (-1, 6)],
-                expected_x=[0, 0])
-test1_2 = Test1(bounds=[(0, 1), (0, 1)],
-                expected_x=[0, 0])
-test1_3 = Test1(bounds=[(None, None), (None, None)],
-                expected_x=[0, 0])
+test1_1 = StuctureTest1(bounds=[(-1, 6), (-1, 6)],
+                        expected_x=[0, 0])
+test1_2 = StuctureTest1(bounds=[(0, 1), (0, 1)],
+                        expected_x=[0, 0])
+test1_3 = StuctureTest1(bounds=[(None, None), (None, None)],
+                        expected_x=[0, 0])
 
-class Test2(TestFunction):
+class StuctureTest2(StuctureTestFunction):
     """
     Scalar function with several minima to test all minimiser retrievals
     """
@@ -45,10 +43,10 @@ class Test2(TestFunction):
     def g(self, x):
         return 58 - numpy.sum(x, axis=0)
 
-test2_1 = Test2(bounds=[(0, 60)],
-                expected_x=[1.53567906],
-                expected_fun=[-28.44677132],
-                # Important to test that funl return is in the correct order
+test2_1 = StuctureTest2(bounds=[(0, 60)],
+                        expected_x=[1.53567906],
+                        expected_fun=[-28.44677132],
+                        # Important to test that funl return is in the correct order
                 expected_xl=numpy.array([[1.53567906],
                                          [55.01782167],
                                          [7.80894889],
@@ -60,22 +58,22 @@ test2_1 = Test2(bounds=[(0, 60)],
                                          [26.43039605],
                                          [30.76371366]]),
 
-                expected_funl=numpy.array([-28.44677132, -24.99785984,
+                        expected_funl=numpy.array([-28.44677132, -24.99785984,
                                            -22.16855376, -18.72136195,
                                            -15.89423937, -12.45154942,
                                            -9.63133158,  -6.20801301,
                                            -3.43727232,  -0.46353338])
-                )
+                        )
 
-test2_2 = Test2(bounds=[(0, 4.5)],
-                expected_x=[1.53567906],
-                expected_fun=[-28.44677132],
-                expected_xl=numpy.array([[1.53567906]]),
-                expected_funl=numpy.array([-28.44677132])
-                )
+test2_2 = StuctureTest2(bounds=[(0, 4.5)],
+                        expected_x=[1.53567906],
+                        expected_fun=[-28.44677132],
+                        expected_xl=numpy.array([[1.53567906]]),
+                        expected_funl=numpy.array([-28.44677132])
+                        )
 
 
-class Test3(TestFunction):
+class StuctureTest3(StuctureTestFunction):
     """
     Hock and Schittkowski 19 problem (HS19). Hoch and Schittkowski (1981)
     http://www.ai7.uni-bayreuth.de/test_problem_coll.pdf
@@ -105,8 +103,8 @@ class Test3(TestFunction):
 
     g = (g1, g2)
 
-test3_1 = Test3(bounds=[(13.0, 100.0), (0.0, 100.0)],
-                expected_x=[13.6602540, 0.])
+test3_1 = StuctureTest3(bounds=[(13.0, 100.0), (0.0, 100.0)],
+                        expected_x=[13.6602540, 0.])
                 # Note this is a lower value that is still within the bounds
                 # There appears to be a typo in Henderson (2015), but the
                 # original solution in the collection of
@@ -114,7 +112,7 @@ test3_1 = Test3(bounds=[(13.0, 100.0), (0.0, 100.0)],
                 #expected_x=[14.095, 0.84296])
 
 
-class Test4(TestFunction):
+class StuctureTest4(StuctureTestFunction):
     """ Rosenbrock's function  Ans x1 = 1, x2 = 1, f = 0 """
     g = None
 
@@ -122,16 +120,16 @@ class Test4(TestFunction):
         return (1.0 - x[0])**2.0 + 100.0*(x[1] - x[0]**2.0)**2.0
 
 
-test4_1 = Test4(bounds=[(-3.0, 3.0), (-3.0, 3.0)],
-                expected_x=[1, 1])
+test4_1 = StuctureTest4(bounds=[(-3.0, 3.0), (-3.0, 3.0)],
+                        expected_x=[1, 1])
 
-test4_2 = Test4(bounds=[(None, None), (-numpy.inf, numpy.inf)],
-                expected_x=[1, 1])
+test4_2 = StuctureTest4(bounds=[(None, None), (-numpy.inf, numpy.inf)],
+                        expected_x=[1, 1])
 
 test_atol = 1e-5
 
 
-class Test5(TestFunction):
+class StuctureTest5(StuctureTestFunction):
     """
     Himmelblau's function
     https://en.wikipedia.org/wiki/Himmelblau's_function
@@ -142,21 +140,21 @@ class Test5(TestFunction):
         return (x[0]**2 + x[1] - 11)**2 + (x[0] + x[1]**2 - 7)**2
 
 
-test5_1 = Test5(bounds=[(-6, 6),
-                        (-6, 6)],
-                expected_x=None,
-                expected_fun=[0.0],  # Important to test that fun
+test5_1 = StuctureTest5(bounds=[(-6, 6),
+                                (-6, 6)],
+                        expected_x=None,
+                        expected_fun=[0.0],  # Important to test that fun
                 # return is in the correct order
                 expected_xl=numpy.array([[3.0, 2.0],
                                          [-2.805118, 3.1313212],
                                          [-3.779310, -3.283186],
                                          [3.584428, -1.848126]]),
 
-                expected_funl=numpy.array([0.0, 0.0, 0.0, 0.0])
-                )
+                        expected_funl=numpy.array([0.0, 0.0, 0.0, 0.0])
+                        )
 
 
-class Test6(TestFunction):
+class StuctureTest6(StuctureTestFunction):
     """
     Eggholder function
     https://en.wikipedia.org/wiki/Test_functions_for_optimization
@@ -170,13 +168,13 @@ class Test6(TestFunction):
                 )
 
 
-test6_1 = Test6(bounds=[(-512, 512),
-                        (-512, 512)],
-                expected_x=[512, 404.2319],
-                expected_fun=[-959.6407]
-                )
+test6_1 = StuctureTest6(bounds=[(-512, 512),
+                                (-512, 512)],
+                        expected_x=[512, 404.2319],
+                        expected_fun=[-959.6407]
+                        )
 
-class Test7(TestFunction):
+class StuctureTest7(StuctureTestFunction):
     """
     Ackley function
     https://en.wikipedia.org/wiki/Test_functions_for_optimization
@@ -189,12 +187,12 @@ class Test7(TestFunction):
                       + numpy.cos(2. * numpy.pi * x[1]))
         return -20. * numpy.exp(arg1) - numpy.exp(arg2) + 20. + numpy.e
 
-test7_1 = Test7(bounds=[(-5, 5), (-5, 5)],
-                expected_x=[0.,  0.],
-                expected_fun=[0.0]
-                )
+test7_1 = StuctureTest7(bounds=[(-5, 5), (-5, 5)],
+                        expected_x=[0.,  0.],
+                        expected_fun=[0.0]
+                        )
 
-class Test8(TestFunction):
+class StuctureTest8(StuctureTestFunction):
     """
     Hock and Schittkowski 29 problem (HS29). Hoch and Schittkowski (1981)
     http://www.ai7.uni-bayreuth.de/test_problem_coll.pdf
@@ -221,12 +219,12 @@ class Test8(TestFunction):
         return - (x[0]**2 + 2 * x[1]**2 + 4 * x[2]**2 - 48.0)
 
 
-test8_1 = Test8(bounds=[(-5, 5), (-4, 4), (-3, 3)],
-                expected_x=[4.0,  -2 * 2**0.5, -2.0],
-                expected_fun=[-16.0 * 2**0.5]  # For all minimizers
-                )
+test8_1 = StuctureTest8(bounds=[(-5, 5), (-4, 4), (-3, 3)],
+                        expected_x=[4.0,  -2 * 2**0.5, -2.0],
+                        expected_fun=[-16.0 * 2**0.5]  # For all minimizers
+                        )
 
-class Test9(TestFunction):
+class StuctureTest9(StuctureTestFunction):
     """
     Hock and Schittkowski 18 problem (HS18). Hoch and Schittkowski (1981)
     http://www.ai7.uni-bayreuth.de/test_problem_coll.pdf
@@ -253,12 +251,12 @@ class Test9(TestFunction):
 
     g = (g1, g2)
 
-test9_1 = Test9(bounds=[(2, 50), (0, 50)],
-                expected_x=[250**0.5, 2.5**0.5],
-                expected_fun=[5.0]
-                )
+test9_1 = StuctureTest9(bounds=[(2, 50), (0, 50)],
+                        expected_x=[250**0.5, 2.5**0.5],
+                        expected_fun=[5.0]
+                        )
 
-class Test10(TestFunction):
+class StuctureTest10(StuctureTestFunction):
     """
     Hock and Schittkowski 11 problem (HS11). Hoch and Schittkowski (1981)
 
@@ -287,14 +285,14 @@ class Test10(TestFunction):
 
     g = (g1, g2, g3, g4)
 
-test10_1 = Test10(bounds=[(-10, 10),]*7,
-                  expected_x=[2.330499, 1.951372, -0.4775414,
+test10_1 = StuctureTest10(bounds=[(-10, 10), ] * 7,
+                          expected_x=[2.330499, 1.951372, -0.4775414,
                               4.365726, -0.6244870, 1.038131, 1.594227],
-                  expected_fun=[680.6300573]
-                  )
+                          expected_fun=[680.6300573]
+                          )
 
 
-class Test11(TestFunction):
+class StuctureTest11(StuctureTestFunction):
     def f(self, x):
         if (x > 5.01) and (x < 5.05):
             return 100 * (x - 5.02) ** 2
@@ -303,12 +301,12 @@ class Test11(TestFunction):
     def g(self, x):
        return -(numpy.sum(x, axis=0) - 9.0)
 
-test11_1 = Test11(bounds=[(0, 10)],
-                  expected_x=[5.02])
+test11_1 = StuctureTest11(bounds=[(0, 10)],
+                          expected_x=[5.02])
 
 
 
-def run_test(test, args=(), g_args=()):
+def run_test(test, args=(), g_args=(), minimizer_kwargs=None):
     def callfun(x):
         print('callfun = {}'.format(x))
         return
@@ -316,9 +314,8 @@ def run_test(test, args=(), g_args=()):
     if test is not test10_1 or test11_1:
         res = tgo(test.f, test.bounds, args=args, g_cons=test.g,
                   g_args=g_args, multiproc=False,
-                  callback=callfun,
-                  options={'maxfev': 650,
-                           'ftol': 1e-12,
+                  callback=callfun, minimizer_kwargs=minimizer_kwargs,
+                  options={'ftol': 1e-12,
                            'disp': True}
                   )
 
@@ -331,11 +328,14 @@ def run_test(test, args=(), g_args=()):
         res.funl = res.funl[:4]
 
     if test == test10_1:
+        #options = {'maxiter': 900}
         res = tgo(test.f, test.bounds, args=args, g_cons=test.g,
-                  g_args=g_args, n=1000)
+                  g_args=g_args, n=1000, minimizer_kwargs=minimizer_kwargs,
+                  multiproc=True)
 
     if test == test11_1:
-        res = tgo(test.f, test.bounds, g_cons=test.g, n=10)
+        res = tgo(test.f, test.bounds, minimizer_kwargs=minimizer_kwargs,
+                  g_cons=test.g, n=10)
 
     if False:
         print("=" * 100)
@@ -437,6 +437,46 @@ class TestTgoFuncs(unittest.TestCase):
     def test_t911(self):
         """1D tabletop function"""
         run_test(test11_1)
+
+
+    def test_7_1_minkwargs(self):
+        """Test the minimizer_kwargs arguments for solvers with constraints"""
+        # Test solvers
+        for solver in ['COBYLA', 'SLSQP']:
+            # Note that passing global constraints to SLSQP is tested in other
+            # unittests which run test4_1 normally
+            minimizer_kwargs = {'method': solver}
+            print("Solver = {}".format(solver))
+            print("=" * 100)
+            run_test(test9_1, #n=100, test_atol=1e-3,
+                     minimizer_kwargs=minimizer_kwargs)
+
+    def test_7_2_minkwargs(self):
+        """Test the minimizer_kwargs default inits"""
+        minimizer_kwargs = {'ftol': 1e-5}
+        options = {'disp': True}  # For coverage purposes
+        TGOc = tgo(test9_1.f, test9_1.bounds,
+                     minimizer_kwargs=minimizer_kwargs, options=options)
+
+    def test_7_3_minkwargs(self):
+        """Test the minimizer_kwargs arguments for solvers without constraints"""
+        for solver in ['Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG',
+                       'L-BFGS-B', 'TNC', 'dogleg', 'trust-ncg', 'trust-exact',
+                       'trust-krylov']:
+            def jac(x, r, s):
+                return numpy.array([2 * x[0], 2 * x[1]]).T
+
+            def hess(x, r, s):
+                return numpy.array([[2, 0], [0, 2]])
+
+            minimizer_kwargs = {'method': solver,
+                                'jac': jac,
+                                'hess': hess}
+
+            r = [1, 2, 3]  # random args for test func tuple
+            s = True
+            run_test(test1_1, args=(r, s),
+                     minimizer_kwargs=minimizer_kwargs)
 
 # $ python2 -m unittest -v tgo_tests.TestTgoSubFuncs
 class TestTgoSubFuncs(unittest.TestCase):

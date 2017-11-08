@@ -1,0 +1,24 @@
+engines:
+  FIXME:
+    enabled: true
+  pep8:
+    enabled: true
+  Radon:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - Python:
+
+ratings:
+  paths:
+  - _tgo.py
+  #- app/**
+  #- lib/**
+  #- "**.rb"
+  #- "**.go"
+exclude_paths:
+  - dev*.py
+#- spec/**/*
+#- "**/vendor/**/*"
